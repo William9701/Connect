@@ -32,13 +32,6 @@ def content_list():
     return render_template('3-main.html', contents=contents, locations=locations, users=users, cache_id=cache_id)
 
 
-@app.route('/content_by_users', strict_slashes=False)
-def content_by_users():
-    """ displays a HTML page with a list of contents by users """
-    contents = storage.all(Content).values()
-    users = storage.all(User).values()
-    return render_template('2-main.html', contents=contents, users=users, h_1="Users")
-
 
 if __name__ == "__main__":
     """ Main Function """
