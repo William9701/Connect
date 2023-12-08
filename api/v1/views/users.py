@@ -5,6 +5,7 @@ from models import storage
 from api.v1.views import app_views
 from flask import abort, jsonify, make_response, request
 from flasgger.utils import swag_from
+from sqlalchemy.exc import IntegrityError
 
 
 @app_views.route('/users', methods=['GET'], strict_slashes=False)
@@ -67,7 +68,17 @@ def post_user():
 
     data = request.get_json()
     instance = User(**data)
-    instance.save()
+    try:
+        instance.save()
+    except IntegrityError as e:
+        storage.rollback()  # Rollback the transaction
+        if 'unique constraint' in str(e.orig).lower():
+            if 'users_username_key' in str(e.orig):
+                return make_response(jsonify(error="Username already exists"), 400)
+            if 'users_email_key' in str(e.orig):
+                return make_response(jsonify(error="Email already exists"), 400)
+        else:
+            return make_response(jsonify(error="An error occurred"), 500)
     return make_response(jsonify(instance.to_dict()), 201)
 
 

@@ -58,7 +58,7 @@
       <div class="text_box">
         <h1>Connect</h1>
         <p>A place where we only share live contents</p>
-        <a href="" class="hero-btn">Login to get started</a>
+        <a href="/login" class="hero-btn">Login to get started</a>
       </div>
     </section>
 
@@ -78,8 +78,10 @@
         </div>
         {% for content in contents %} {% for user in users %} {% if
         content.user_id == user.id %}
-        <div class="event-body">
-          <div class="content"></div>
+        <a href="/play/{{ content.id }}" class="event-body" ">
+          <div class="content">
+            <video class="video" autoplay src="{{ content.content }}"></video>
+          </div>
           <div class="user">
             <img
               id="user-logo"
@@ -91,7 +93,7 @@
             </div>
           </div>
           <div class="content-discription">{{ content.content }}</div>
-        </div>
+        </a>
         {% endif %} {% endfor %} {% endfor %}
       </div>
     </section>

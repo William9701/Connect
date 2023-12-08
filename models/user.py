@@ -7,13 +7,17 @@ import models
 from models.content import Content
 from models.comment import Comment
 from sqlalchemy.orm import relationship, Session
+from flask_bcrypt import Bcrypt
+
+bcrypt = Bcrypt()
 
 
 class User(Basemodels, Base):
     __tablename__ = 'users'
     if models.storage_t == "db":
 
-        email = Column(String(128), nullable=False)
+        email = Column(String(128), unique=True, nullable=False)
+        username = Column(String(128), unique=True, nullable=False)
         password = Column(String(128), nullable=False)
         first_name = Column(String(128), nullable=False)
         last_name = Column(String(128), nullable=False)
@@ -35,24 +39,10 @@ class User(Basemodels, Base):
     def __setattr__(self, name, value):
         """sets a password with md5 encryption"""
         if name == "password":
-            value = md5(value.encode()).hexdigest()
+            value = bcrypt.generate_password_hash(value).decode('utf-8')
+        if name == "username":
+            value = f"@{value}"
         super().__setattr__(name, value)
 
-    @classmethod
-    def login(cls, email, password):
-        """Log in a user with the given email and password."""
-        # Hash the password
-        hashed_password = md5(password.encode()).hexdigest()
 
-        # Create a session
-        session = Session(models.storage.__engine)
 
-        # Query for the user
-        user = session.query(cls).filter_by(email=email, password=hashed_password).first()
-
-        # If the user was found and the password is correct, return the user
-        if user is not None:
-            return user
-
-        # If the user was not found or the password is incorrect, return None
-        return None

@@ -12,244 +12,78 @@ $(document).ready(function () {
   setInterval(checkApiStatus, 5000);
 });
 
+/* --------this part is for the search-bar querry side ----*/
 document.addEventListener("DOMContentLoaded", function () {
   document
-    .querySelector(".search-bar")
+    .querySelector(".search-box.flex-div")
     .addEventListener("submit", function (event) {
       event.preventDefault(); // Prevent the form from submitting normally
       var query = document.querySelector('input[name="q"]').value; // Get the search query
 
-      fetch("http://127.0.0.1:5001/api/v1/locations/" + query) // Send a GET request to your API
+      // Send a GET request to your API
+      fetch("http://127.0.0.1:5001/api/v1/locations/" + query)
         .then((response) => response.json()) // Parse the response as JSON
         .then((data) => {
-          var liveBody = document.querySelector(".live-body"); // Get the live body element
-          var Row = document.querySelector(".row");
-          Row.style.flex = "1";
+          // Send a GET request to get the users
+          fetch("http://127.0.0.1:5001/api/v1/users")
+            .then((response) => response.json()) // Parse the response as JSON
+            .then((users) => {
+              var list_container = document.querySelector(".list-container"); // Get the list-container element
+              list_container.innerHTML = ""; // Clear the list-container
 
-          Row.style.maxHeight = "800px";
+              data.contents.forEach((content) => {
+                var vid_list = document.createElement("div");
+                vid_list.className = "vid-list";
 
-          Row.innerHTML = ""; // Clear the row body
+                var a = document.createElement("a");
+                a.href = "play/" + content.id;
 
-          var liveLogo = document.createElement("div");
-          liveLogo.className = "live-logo";
+                var video = document.createElement("video");
+                video.autoplay = true;
+                video.src = content.content;
+                video.className = "thumbnail";
 
-          var liveLogo_img = document.createElement("img");
-          liveLogo_img.src = "../static/images/live-icon.png";
-          liveLogo_img.alt = "";
+                a.appendChild(video);
+                vid_list.appendChild(a);
 
-          liveLogo.appendChild(liveLogo_img);
-          Row.appendChild(liveLogo);
+                var flex_div = document.createElement("div");
+                flex_div.className = "flex-div";
 
-          if (data.length === 1) {
-            Row.style.maxHeight = "430px";
-          }
+                var img = document.createElement("img");
+                img.src = "../static/images/Jack.png";
 
-          if (!Array.isArray(data) || data.length === 0) {
-            // Check if the data is not an array or if it's an empty array
+                flex_div.appendChild(img);
 
-            var liveLogo = document.createElement("div");
-            liveLogo.className = "live-logo";
+                var vid_info = document.createElement("div");
+                vid_info.className = "vid-info";
 
-            var liveLogo_img = document.createElement("img");
-            liveLogo_img.src = "../static/images/live-icon.png";
-            liveLogo_img.alt = "";
+                users.forEach((user) => {
+                  if (user.id == content.user_id) {
+                    var user_link = document.createElement("a");
+                    user_link.href = "play-video.html";
+                    user_link.textContent =
+                      user.first_name + " " + user.last_name;
 
-            liveLogo.appendChild(liveLogo_img);
-            Row.appendChild(liveLogo);
+                    vid_info.appendChild(user_link);
+                  }
+                });
 
-            Row.addEventListener("mouseover", function () {
-              this.style.overflowY = "visible"; // Change to 'visible' on hover
+                var p_desc = document.createElement("p");
+                p_desc.textContent = content.description;
+
+                var p_views = document.createElement("p");
+                p_views.textContent = content.number_of_views + " views";
+
+                vid_info.appendChild(p_desc);
+                vid_info.appendChild(p_views);
+
+                flex_div.appendChild(vid_info);
+                vid_list.appendChild(flex_div);
+
+                list_container.appendChild(vid_list);
+              });
             });
-
-            var imgElement = document.createElement("img");
-            imgElement.id = "opps-logo";
-            imgElement.src = "../static/images/opps.png";
-            imgElement.alt = "";
-            Row.appendChild(imgElement);
-            var SorryNote = document.createElement("div");
-            SorryNote.className = "sorry";
-
-            var message = document.createElement("p");
-            message.textContent =
-              "Sorry No live contentents for " + query + " now.";
-            SorryNote.appendChild(message);
-            Row.appendChild(SorryNote);
-            Row.style.maxHeight = "400px";
-          } else {
-            data.forEach((location) => {
-              // Loop through each location in the response
-              fetch("http://127.0.0.1:5001/api/v1/users/" + location.user_id) // Send a GET request to your API to get the user
-                .then((response) => response.json()) // Parse the response as JSON
-                .then((user) => {
-                  var eventBody = document.createElement("div");
-                  eventBody.className = "event-body";
-
-                  var Content = document.createElement("div");
-                  Content.className = "content";
-                  Content.textContent = "This is " + location.name + " content";
-                  eventBody.appendChild(Content);
-
-                  // Add the user and content description elements...
-                  var userElement = document.createElement("div");
-                  userElement.className = "user";
-
-                  // Create an img element
-                  var imgElement = document.createElement("img");
-                  imgElement.id = "user-logo";
-                  imgElement.src = "../static/images/icons8-user-16.png";
-                  imgElement.alt = "";
-
-                  // Append the img element to the user element
-                  userElement.appendChild(imgElement);
-
-                  var userDescription = document.createElement("div");
-                  userDescription.className = "user-description";
-                  userDescription.textContent =
-                    user.first_name + " " + user.last_name;
-                  userElement.appendChild(userDescription);
-                  eventBody.appendChild(userElement);
-
-                  var contentDescription = document.createElement("div");
-                  contentDescription.className = "content-discription";
-
-                  fetch(
-                    "http://127.0.0.1:5001/api/v1/contents/" +
-                      location.content_id
-                  ) // Send a GET request to your API to get the content
-                    .then((response) => response.json()) // Parse the response as JSON
-                    .then((content) => {
-                      contentDescription.textContent = content.content;
-                    });
-                  eventBody.appendChild(contentDescription);
-
-                  Row.appendChild(eventBody); // Add the new event body to the live body
-                  liveBody.appendChild(Row);
-                })
-                .catch((error) => console.error("Error:", error));
-            });
-          }
-        })
-        .catch((error) => console.error("Error:", error));
+        });
     });
 });
 
-document.addEventListener("DOMContentLoaded", function () {
-  document.querySelectorAll(".location-link").forEach(function (link) {
-    link.addEventListener("click", function (event) {
-      event.preventDefault(); // Prevent the link from navigating
-      var name = this.getAttribute("data-name"); // Get the location name
-
-      fetch("http://127.0.0.1:5001/api/v1/locations/" + name)
-        .then((response) => response.json()) // Parse the response as JSON
-        .then((data) => {
-          var liveBody = document.querySelector(".live-body"); // Get the live body element
-          var Row = document.querySelector(".row");
-          Row.style.flex = "1";
-
-          Row.style.maxHeight = "800px";
-
-          Row.innerHTML = ""; // Clear the row body
-
-          var liveLogo = document.createElement("div");
-          liveLogo.className = "live-logo";
-
-          var liveLogo_img = document.createElement("img");
-          liveLogo_img.src = "../static/images/live-icon.png";
-          liveLogo_img.alt = "";
-
-          liveLogo.appendChild(liveLogo_img);
-          Row.appendChild(liveLogo);
-
-          if (data.length === 1) {
-            Row.style.maxHeight = "430px";
-          }
-
-          if (!Array.isArray(data) || data.length === 0) {
-            // Check if the data is not an array or if it's an empty array
-
-            var liveLogo = document.createElement("div");
-            liveLogo.className = "live-logo";
-
-            var liveLogo_img = document.createElement("img");
-            liveLogo_img.src = "../static/images/live-icon.png";
-            liveLogo_img.alt = "";
-
-            liveLogo.appendChild(liveLogo_img);
-            Row.appendChild(liveLogo);
-
-            Row.addEventListener("mouseover", function () {
-              this.style.overflowY = "visible"; // Change to 'visible' on hover
-            });
-
-            var imgElement = document.createElement("img");
-            imgElement.id = "opps-logo";
-            imgElement.src = "../static/images/opps.png";
-            imgElement.alt = "";
-            Row.appendChild(imgElement);
-            var SorryNote = document.createElement("div");
-            SorryNote.className = "sorry";
-
-            var message = document.createElement("p");
-            message.textContent =
-              "Sorry No live contentents for " + query + " now.";
-            SorryNote.appendChild(message);
-            Row.appendChild(SorryNote);
-            Row.style.maxHeight = "400px";
-          } else {
-            data.forEach((location) => {
-              // Loop through each location in the response
-              fetch("http://127.0.0.1:5001/api/v1/users/" + location.user_id) // Send a GET request to your API to get the user
-                .then((response) => response.json()) // Parse the response as JSON
-                .then((user) => {
-                  var eventBody = document.createElement("div");
-                  eventBody.className = "event-body";
-
-                  var Content = document.createElement("div");
-                  Content.className = "content";
-                  Content.textContent = "This is " + location.name + " content";
-                  eventBody.appendChild(Content);
-
-                  // Add the user and content description elements...
-                  var userElement = document.createElement("div");
-                  userElement.className = "user";
-
-                  // Create an img element
-                  var imgElement = document.createElement("img");
-                  imgElement.id = "user-logo";
-                  imgElement.src = "../static/images/icons8-user-16.png";
-                  imgElement.alt = "";
-
-                  // Append the img element to the user element
-                  userElement.appendChild(imgElement);
-
-                  var userDescription = document.createElement("div");
-                  userDescription.className = "user-description";
-                  userDescription.textContent =
-                    user.first_name + " " + user.last_name;
-                  userElement.appendChild(userDescription);
-                  eventBody.appendChild(userElement);
-
-                  var contentDescription = document.createElement("div");
-                  contentDescription.className = "content-discription";
-
-                  fetch(
-                    "http://127.0.0.1:5001/api/v1/contents/" +
-                      location.content_id
-                  ) // Send a GET request to your API to get the content
-                    .then((response) => response.json()) // Parse the response as JSON
-                    .then((content) => {
-                      contentDescription.textContent = content.content;
-                    });
-                  eventBody.appendChild(contentDescription);
-
-                  Row.appendChild(eventBody); // Add the new event body to the live body
-                  liveBody.appendChild(Row);
-                })
-                .catch((error) => console.error("Error:", error));
-            });
-          }
-        })
-        .catch((error) => console.error("Error:", error));
-    });
-  });
-});

@@ -1,7 +1,7 @@
 *{
 	margin: 0;
 	padding: 0;
-	box-sizing: border-box;
+
 }
 body{
 	background-image: url("../images/Connect.jpg");
@@ -260,10 +260,15 @@ nav .fa{
 	border: 1px solid transparent;
 	margin: 50px auto;
 	transition: 0.5s;
+	text-decoration: none;
 
+}
+.event-body a{
+	text-decoration: none;
 }
 .event-body:hover{
 	background-color: rgb(163, 234, 247);
+	cursor: pointer;
 }
 .content{
 	height: 200px;
@@ -271,6 +276,10 @@ nav .fa{
 	border: 1px solid black;
 	background-color: black;
 	color: white;
+}
+.video{
+	height: 200px;
+	width: 100%;
 }
 .user{
 	margin-top: 30px;
@@ -292,6 +301,7 @@ nav .fa{
 	color: #fff;
 	padding-left: 20px;
 	padding-top: 15px;
+	text-decoration: none;
 }
 .content-discription{
 	height: 30px;
@@ -307,6 +317,8 @@ nav .fa{
 	padding-top: 10px;
 	padding-bottom: 10px;
 	text-align: start;
+	overflow: hidden;
+	text-decoration: none;
 }
 .live-body{
 	margin-bottom: 10%;

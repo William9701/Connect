@@ -14,6 +14,7 @@ class Content(Basemodels, Base):
         user_id = Column(String(60), ForeignKey('users.id'), nullable=False)
         location_id = Column(String(60), ForeignKey('locations.id'), nullable=True)
         content = Column(String(128), nullable=False)  # This will store the path to the video file
+        description = Column(String(255), nullable=True)
         number_of_likes = Column(Integer, default=0)
         number_of_dislikes = Column(Integer, default=0)
         number_of_views = Column(Integer, default=0)

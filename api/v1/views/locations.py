@@ -71,3 +71,22 @@ def put_location(location_id):
             setattr(location, key, value)
     storage.save()
     return make_response(jsonify(location.to_dict()), 200)
+
+
+@app_views.route('/locations/<location_id>', methods=['DELETE'],
+                 strict_slashes=False)
+@swag_from('documentation/location/delete_location.yml', methods=['DELETE'])
+def delete_location(location_id):
+    """
+    Deletes a location Object
+    """
+
+    location = storage.get(Location, location_id)
+
+    if not location:
+        abort(404)
+
+    storage.delete(location)
+    storage.save()
+
+    return make_response(jsonify({}), 200)

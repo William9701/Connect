@@ -44,6 +44,8 @@ class DBStorage:
                                              Connect_MYSQL_DB))
         if Connect_ENV == "test":
             Base.metadata.drop_all(self.__engine)
+        
+        
 
     def all(self, cls=None):
         """query on the current database session"""
@@ -72,6 +74,9 @@ class DBStorage:
         """delete from the current database session obj if not None"""
         if obj is not None:
             self.__session.delete(obj)
+    def rollback(self):
+        """ Roll back a session"""
+        self.__session.rollback()
 
     def reload(self):
         """reloads data from the database"""
@@ -80,9 +85,7 @@ class DBStorage:
         Session = scoped_session(sess_factory)
         self.__session = Session
 
-    def close(self):
-        """call remove() method on the private session attribute"""
-        self.__session.remove()
+
 
     def get(self, cls, id):
         """
